@@ -38,6 +38,8 @@
               description = "caffeinated";
             };
 
+            output = "out";
+
             inherit nativeBuildInputs buildInputs;
           };
         };
