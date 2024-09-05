@@ -25,20 +25,16 @@
           libgee
           pantheon.wingpanel
         ];
-
-        sourceFiles = ./meson.build;
       in
       {
         packages = {
           default = pkgs.stdenv.mkDerivation {
             name = "caffeinated";
-            src = ./.;
+            src = self;
 
             meta = with pkgs.lib; {
               description = "caffeinated";
             };
-
-            output = "out";
 
             inherit nativeBuildInputs buildInputs;
           };
