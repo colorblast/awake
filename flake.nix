@@ -32,16 +32,7 @@
         packages = {
           default = pkgs.stdenv.mkDerivation {
             name = "caffeinated";
-            src = fs.toSource {
-              root = ./.;
-              fileset = sourceFiles;
-            };
-
-            configurePhase = ''
-              echo "copied dir"
-              ls -la
-              meson setup build .
-              '';
+            src = ./.;
 
             meta = with pkgs.lib; {
               description = "caffeinated";
