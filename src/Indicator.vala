@@ -1,3 +1,5 @@
+using Gee;
+
 public class Sample.Indicator : Wingpanel.Indicator {
     /* Our display widget, a Gtk.Overlay */
     private Gtk.Overlay display_widget;
@@ -34,15 +36,30 @@ public class Sample.Indicator : Wingpanel.Indicator {
             margin_bottom = 3
         };
 
-        var hide_button = new Gtk.ModelButton ();
+        Gtk.ModelButton hide_button = new Gtk.ModelButton ();
         hide_button.text = _("Hide me fast!");
 
         var compositing_switch = new Granite.SwitchModelButton (_("Composited Icon"));
 
+        var menu = new Gtk.Menu();
+
+        // the point of using gee here is if vala ever supports list initialization for arraylists over generics, it would be a trivial change
+        Gee.List<Gtk.MenuItem> menu_items = new ArrayList<Gtk.MenuItem>();
+
+        menu_items.add(new Gtk.MenuItem.with_label("15 minutes"));
+        menu_items.add(new Gtk.MenuItem.with_label ("30 minutes"));
+        menu_items.add(new Gtk.MenuItem.with_label ("45 minutes"));
+        menu_items.add(new Gtk.MenuItem.with_label ("1 hour"));
+        
+        foreach (Gtk.MenuItem item in menu_items) {
+            menu.append(item);
+        }
+
         main_widget = new Gtk.Grid ();
         main_widget.attach (hide_button, 0, 0);
         main_widget.attach (separator, 0, 1);
-        main_widget.attach (compositing_switch, 0, 2);
+        main_widget.attach(menu, 0, 2);
+        main_widget.attach (compositing_switch, 0, 3);
 
         /* Indicator should be visible at startup */
         this.visible = true;

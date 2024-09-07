@@ -1,6 +1,8 @@
 wingpanel_dep = dependency('wingpanel')
 wingpanel_indicatorsdir = wingpanel_dep.get_variable('indicatorsdir', pkgconfig_define: ['libdir', libdir])
 
+gee_dep = dependency('gee-0.8')
+
 files = files(
     'Indicator.vala',
 )
