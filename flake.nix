@@ -41,7 +41,7 @@
         };
         devShells = {
           default = pkgs.mkShell {
-            packages = with pkgs; nativeBuildInputs ++ buildInputs;
+            packages = with pkgs; nativeBuildInputs ++ buildInputs ++ [ bashInteractive ];
           };
         };
       });

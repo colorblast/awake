@@ -8,11 +8,12 @@ public class Sample.Indicator : Wingpanel.Indicator {
     public Indicator () {
         /* Some information about the indicator */
         Object (
-            code_name : "sample-indicator" /* Unique name */
+            code_name : "caffeinated" /* Unique name */
         );
     }
 
     construct {
+        // default off
         var main_image = new Gtk.Image () {
             icon_name = "dialog-information-symbolic",
             pixel_size = 24
@@ -34,7 +35,7 @@ public class Sample.Indicator : Wingpanel.Indicator {
         };
 
         var hide_button = new Gtk.ModelButton ();
-        hide_button.text = _("Hide me!");
+        hide_button.text = _("Hide me fast!");
 
         var compositing_switch = new Granite.SwitchModelButton (_("Composited Icon"));
 
