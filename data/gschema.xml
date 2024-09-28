@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+    <schema id="io.github.colorblast.awake" path="/io/github/colorblast/awake/">
+        <key name="button-state" type="i">
+            <default>0</default>
+            <summary>The last to be clicked</summary>
+            <description>Literally the last</description>
+        </key>
+    </schema>
+</schemalist>
