@@ -1,0 +1,5 @@
+<gresources>
+    <gresource prefix="/io/github/colorblast/awake">
+        <file>24.svg</file>
+    </gresource>
+</gresources>
