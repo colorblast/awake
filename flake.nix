@@ -1,5 +1,5 @@
 {
-  description = "Suspend sleep";
+  description = "awake is a native stay-awake system tray indicator for pantheon";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
@@ -28,11 +28,11 @@
       {
         packages = {
           default = pkgs.stdenv.mkDerivation {
-            name = "caffeinated";
+            name = "awake";
             src = self;
 
             meta = {
-              description = "caffeinated";
+              description = "awake is a native stay-awake system tray indicator for pantheon ";
             };
 
             inherit nativeBuildInputs buildInputs;

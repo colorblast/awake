@@ -10,7 +10,24 @@ awake uses systemd.
 
 ### nix flake
 
-awake is available as a nix flake.
+awake is available as a nix flake. Don't use nix run since this package builts a shared object library that wingpanel references.
+
+#### configuration.nix
+
+`awake = builtins.getFlake "github:colorblast/awake"`
+
+Now you can include the awake input inside pantheon by referencing the extraWingpanelIndicators option.
+
+```
+services.xserver.desktopManager.pantheon.extraWingpanelIndicators = with pkgs; [
+    ...
+    awake.${pkgs.system}.default
+];
+```
+
+#### flake
+
+`awake.url = github:colorblast/awake`
 
 ### os-specific binaries
 

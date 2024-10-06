@@ -50,34 +50,8 @@ public class Awake.Indicator : Wingpanel.Indicator {
 
     construct {
 
-        string css = """
-        .icon {
-            color: white;
-        }
-        """;
-
-        // Load the CSS from the string
-        var css_provider = new Gtk.CssProvider ();
-        try {
-            css_provider.load_from_data (css, -1); // Load the inline CSS
-        } catch (GLib.Error err) {
-        }
-
-
-        Gtk.StyleContext.add_provider_for_screen (
-                                                  Gdk.Screen.get_default (),
-                                                  css_provider,
-                                                  Gtk.STYLE_PROVIDER_PRIORITY_USER
-        );
-
-        // main_image = new Gtk.Image.from_icon_name ("24.svg", Gtk.IconSize.LARGE_TOOLBAR);
         main_image = new Gtk.Image.from_resource ("/io/github/colorblast/awake/icons/24.svg");
-        // main_image.set_size_request (16, 16);
         main_image.set_pixel_size (24);
-
-        main_image.get_style_context ().add_class ("icon");
-        // main_image.set_from_file (GLib.Environment.get_current_dir () + "/share/icons/24.svg");
-        debug (GLib.Environment.get_user_data_dir ());
 
         var separator = new Gtk.Separator (Gtk.Orientation.HORIZONTAL) {
             margin_top = 3,
@@ -94,6 +68,7 @@ public class Awake.Indicator : Wingpanel.Indicator {
         mode_btn.append_text ("2");
 
         mode_btn.set_vexpand (true);
+        mode_btn.set_valign (Gtk.Align.FILL);
 
         var separator2 = new Gtk.Separator (Gtk.Orientation.HORIZONTAL) {
             margin_top = 0,
@@ -109,6 +84,7 @@ public class Awake.Indicator : Wingpanel.Indicator {
 
         main_widget.column_spacing = 0;
         main_widget.row_spacing = 0;
+        main_widget.set_valign (Gtk.Align.FILL);
 
         /* Indicator should be visible at startup */
         this.visible = true;
