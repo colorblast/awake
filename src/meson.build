@@ -3,24 +3,32 @@ wingpanel_indicatorsdir = wingpanel_dep.get_variable('indicatorsdir', pkgconfig_
 
 gee_dep = dependency('gee-0.8')
 
-files = files(
-    'Indicator.vala',
-)
-
 dependencies = [
     dependency('glib-2.0'),
     dependency('gobject-2.0'),
     dependency('granite', version: '>=6.0.0'),
     dependency('gtk+-3.0'),
     meson.get_compiler('vala').find_library('posix'),
-    wingpanel_dep
+    wingpanel_dep,
 ]
+
+gnome = import('gnome')
+gresource = gnome.compile_resources(
+    'gresource',
+    '../data/resources.xml',
+    source_dir: '../data',
+    install: false,
+)
+
+files = files(
+    'Indicator.vala',
+
+)
 
 shared_module(
     meson.project_name(),
-    files,
+    files + gresource,
     dependencies: dependencies,
     install: true,
-    install_dir : wingpanel_indicatorsdir
+    install_dir: wingpanel_indicatorsdir,
 )
-

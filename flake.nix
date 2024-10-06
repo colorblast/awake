@@ -10,7 +10,6 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs { inherit system; };
-        fs = pkgs.lib.fileset;
 
         nativeBuildInputs = with pkgs; [
           meson
@@ -32,7 +31,7 @@
             name = "caffeinated";
             src = self;
 
-            meta = with pkgs.lib; {
+            meta = {
               description = "caffeinated";
             };
 
@@ -41,7 +40,7 @@
         };
         devShells = {
           default = pkgs.mkShell {
-            packages = with pkgs; nativeBuildInputs ++ buildInputs ++ [ bashInteractive ];
+            packages = with pkgs; nativeBuildInputs ++ buildInputs ++ [ uncrustify bashInteractive ];
           };
         };
       });

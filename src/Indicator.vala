@@ -1,87 +1,142 @@
-using Gee;
+// awake
+public class Awake.Indicator : Wingpanel.Indicator {
+    private Gtk.Image main_image;
 
-public class Sample.Indicator : Wingpanel.Indicator {
-    /* Our display widget, a Gtk.Overlay */
-    private Gtk.Overlay display_widget;
-
-    /* The main widget that is displayed in the popover */
     private Gtk.Grid main_widget;
+    private Granite.Widgets.ModeButton mode_btn;
+    private GLib.Settings settings;
+
+    private Pid child_pid = 0;
 
     public Indicator () {
-        /* Some information about the indicator */
         Object (
-            code_name : "caffeinated" /* Unique name */
+                code_name: "awake-indicator"
         );
     }
 
+    private void set_state (int state) {
+        mode_btn.set_active (state);
+    }
+
+    private void update_state (int state) {
+        settings.set_int ("button-state", state);
+    }
+
+    private void maybe_kill_proc () {
+        if (child_pid > 0) {
+            try {
+                string cmd = "kill " + ((int) child_pid).to_string ();
+                GLib.Process.spawn_command_line_async (cmd);
+            } catch (SpawnError e) {
+                print ("Could not kill process %s\n", e.message);
+            }
+        }
+    }
+
+    private void start_sleep (int sleep_amt) {
+
+        maybe_kill_proc ();
+
+        try {
+            GLib.Process.spawn_async (null, { "systemd-inhibit", "--what=idle:sleep:shutdown", "sleep", sleep_amt.to_string () }, null, SpawnFlags.SEARCH_PATH, null, out child_pid);
+        } catch (Error e) {
+            print ("Error: %s\n", e.message);
+        }
+
+        Timeout.add (1000, () => {
+            return false;
+        });
+    }
+
     construct {
-        // default off
-        var main_image = new Gtk.Image () {
-            icon_name = "dialog-information-symbolic",
-            pixel_size = 24
-        };
 
-        var overlay_image = new Gtk.Image () {
-            pixel_size = 24
-        };
+        string css = """
+        .icon {
+            color: white;
+        }
+        """;
 
-        /* Create a new composited icon */
-        display_widget = new Gtk.Overlay () {
-            child = main_image
-        };
-        display_widget.add_overlay (overlay_image);
+        // Load the CSS from the string
+        var css_provider = new Gtk.CssProvider ();
+        try {
+            css_provider.load_from_data (css, -1); // Load the inline CSS
+        } catch (GLib.Error err) {
+        }
+
+
+        Gtk.StyleContext.add_provider_for_screen (
+                                                  Gdk.Screen.get_default (),
+                                                  css_provider,
+                                                  Gtk.STYLE_PROVIDER_PRIORITY_USER
+        );
+
+        // main_image = new Gtk.Image.from_icon_name ("24.svg", Gtk.IconSize.LARGE_TOOLBAR);
+        main_image = new Gtk.Image.from_resource ("/io/github/colorblast/awake/icons/24.svg");
+        // main_image.set_size_request (16, 16);
+        main_image.set_pixel_size (24);
+
+        main_image.get_style_context ().add_class ("icon");
+        // main_image.set_from_file (GLib.Environment.get_current_dir () + "/share/icons/24.svg");
+        debug (GLib.Environment.get_user_data_dir ());
 
         var separator = new Gtk.Separator (Gtk.Orientation.HORIZONTAL) {
             margin_top = 3,
-            margin_bottom = 3
+            margin_bottom = 0
         };
 
-        Gtk.ModelButton hide_button = new Gtk.ModelButton ();
-        hide_button.text = _("Hide me fast!");
+        var compositing_switch = new Granite.SwitchModelButton (_("Awake"));
 
-        var compositing_switch = new Granite.SwitchModelButton (_("Composited Icon"));
+        mode_btn = new Granite.Widgets.ModeButton ();
+        mode_btn.append_text ("15");
+        mode_btn.append_text ("30");
+        mode_btn.append_text ("45");
+        mode_btn.append_text ("1");
+        mode_btn.append_text ("2");
 
-        var menu = new Gtk.Menu();
-
-        // the point of using gee here is if vala ever supports list initialization for arraylists over generics, it would be a trivial change
-        Gee.List<Gtk.MenuItem> menu_items = new ArrayList<Gtk.MenuItem>();
-
-        menu_items.add(new Gtk.MenuItem.with_label("15 minutes"));
-        menu_items.add(new Gtk.MenuItem.with_label ("30 minutes"));
-        menu_items.add(new Gtk.MenuItem.with_label ("45 minutes"));
-        menu_items.add(new Gtk.MenuItem.with_label ("1 hour"));
-        
-        foreach (Gtk.MenuItem item in menu_items) {
-            menu.append(item);
-        }
+        var separator2 = new Gtk.Separator (Gtk.Orientation.HORIZONTAL) {
+            margin_top = 0,
+            margin_bottom = 3,
+        };
 
         main_widget = new Gtk.Grid ();
-        main_widget.attach (hide_button, 0, 0);
-        main_widget.attach (separator, 0, 1);
-        main_widget.attach(menu, 0, 2);
-        main_widget.attach (compositing_switch, 0, 3);
+        main_widget.attach (compositing_switch, 0, 1);
+        main_widget.attach (separator, 0, 2);
+        main_widget.attach (mode_btn, 0, 3);
+        main_widget.attach (separator2, 0, 4);
+
+        main_widget.column_spacing = 0;
+        main_widget.row_spacing = 0;
 
         /* Indicator should be visible at startup */
         this.visible = true;
 
-        hide_button.clicked.connect (() => {
-            this.visible = false;
+        settings = new GLib.Settings ("io.github.colorblast.awake");
+        int state = settings.get_int ("button-state");
+        set_state (state);
 
-            Timeout.add (2000, () => {
-                this.visible = true;
-                return false;
-            });
+        mode_btn.mode_changed.connect (() => {
+            update_state (state);
+            int val = int.parse (((mode_btn.get_children ().nth_data (mode_btn.selected) as Gtk.ToggleButton).get_child () as Gtk.Label).get_text ());
+            if (val > 10) {
+                start_sleep (val * 60);
+            } else {
+                start_sleep (val * 60 * 60);
+            }
         });
 
         compositing_switch.notify["active"].connect (() => {
-            /* If the switch is enabled set the icon name of the icon that should be drawn on top of the other one, if not hide the top icon. */
-            overlay_image.icon_name = compositing_switch.active ? "network-vpn-lock-symbolic" : "";
+            if (compositing_switch.active) {
+                mode_btn.set_sensitive (true);
+            } else {
+                mode_btn.set_sensitive (false);
+                maybe_kill_proc ();
+            }
         });
     }
 
     /* This method is called to get the widget that is displayed in the panel */
     public override Gtk.Widget get_display_widget () {
-        return display_widget;
+        return main_image;
     }
 
     /* This method is called to get the widget that is displayed in the popover */
@@ -104,19 +159,14 @@ public class Sample.Indicator : Wingpanel.Indicator {
  * This method is called once after your plugin has been loaded.
  * Create and return your indicator here if it should be displayed on the current server.
  */
-public Wingpanel.Indicator? get_indicator (Module module, Wingpanel.IndicatorManager.ServerType server_type) {
-    /* A small message for debugging reasons */
-    debug ("Activating Sample Indicator");
+public Wingpanel.Indicator ? get_indicator (Module module, Wingpanel.IndicatorManager.ServerType server_type) {
+    debug ("Activating Awake Indicator");
 
-    /* Check which server has loaded the plugin */
     if (server_type != Wingpanel.IndicatorManager.ServerType.SESSION) {
-        /* We want to display our sample indicator only in the "normal" session, not on the login screen, so stop here! */
         return null;
     }
 
-    /* Create the indicator */
-    var indicator = new Sample.Indicator ();
+    var indicator = new Awake.Indicator ();
 
-    /* Return the newly created indicator */
     return indicator;
 }

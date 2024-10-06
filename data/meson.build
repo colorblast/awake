@@ -4,7 +4,6 @@ install_data(
     rename: meson.project_name() + '.gschema.xml',
 )
 
-install_data(
-    '24.svg',
-    install_dir: join_paths(get_option('datadir'), 'icons'),
-)
+#install_data(
+#    '24.svg',
+#    install_dir: join_paths(get_option('datadir'), 'icons'),
