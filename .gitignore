@@ -1,0 +1,6 @@
+.direnv/
+.vscode/
+.envrc
+
+# nix symbolic files
+result

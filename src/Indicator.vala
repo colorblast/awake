@@ -93,12 +93,15 @@ public class Awake.Indicator : Wingpanel.Indicator {
         mode_btn.append_text ("1");
         mode_btn.append_text ("2");
 
+        mode_btn.set_vexpand (true);
+
         var separator2 = new Gtk.Separator (Gtk.Orientation.HORIZONTAL) {
             margin_top = 0,
             margin_bottom = 3,
         };
 
         main_widget = new Gtk.Grid ();
+        main_widget.set_vexpand (true);
         main_widget.attach (compositing_switch, 0, 1);
         main_widget.attach (separator, 0, 2);
         main_widget.attach (mode_btn, 0, 3);
